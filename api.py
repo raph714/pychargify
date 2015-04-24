@@ -614,7 +614,7 @@ class Chargify:
         to a file with JSON that defines those two, or we throw
         an error.'''
 
-        if self.api_key and self.sub_domain:
+        if apikey and subdomain:
             self.api_key = apikey
             self.sub_domain = subdomain
             return
