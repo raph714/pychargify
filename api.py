@@ -20,6 +20,7 @@ Author: Paul Trippett (paul@pyhub.com)
 '''
 
 import httplib
+import urllib
 import base64
 import datetime
 import iso8601
@@ -199,7 +200,7 @@ class ChargifyBase(object):
                     element.appendChild(node)
         return element
 
-    def _get(self, url):
+    def _get(self, url, **kwargs):
         """
         Handle HTTP GET's to the API
         """
@@ -208,6 +209,10 @@ class ChargifyBase(object):
             "User-Agent": "pyChargify",
             "Content-Type": 'text/xml'
         }
+
+        if kwargs:
+            params = urllib.urlencode(kwargs)
+            url = url + '?' + params
 
         r = httplib.HTTPSConnection(self.request_host)
         r.request('GET', url, None, headers)
@@ -467,9 +472,12 @@ class ChargifySubscription(ChargifyBase):
         if nodename:
             self.__xmlnodename__ = nodename
 
-    def getAll(self):
-        return self._applyA(self._get('/subscriptions.xml'),
-            self.__name__, 'subscription')
+    def getAll(self, page=1, per_page=200, **kwargs):
+        kwargs['page'] = page
+        kwargs['per_page'] = per_page
+
+        return self._applyA(self._get('/subscriptions.xml', **kwargs),
+                            self.__name__, 'subscription')
 
     def createUsage(self, component_id, quantity, memo=None):
         """
